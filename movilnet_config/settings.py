@@ -1,5 +1,6 @@
 from pathlib import Path
 from django.contrib.messages import constants as message_constants
+import os
 
 # Ruta base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -9,8 +10,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-(w0l(o!qmnniszv(9hmrz7x%!(xw2%76b*^bbo*xn!(89a@#+l'
 
 # DEBUG=True solo para desarrollo. ¡Cámbialo a False en producción!
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+ALLOWED_HOSTS = ['*']  # Railway maneja la seguridad del dominio
 
 # --- APLICACIONES ---
 INSTALLED_APPS = [
@@ -29,6 +30,7 @@ INSTALLED_APPS = [
 # Procesan las peticiones antes de llegar a las vistas (seguridad, sesiones, etc.)
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Para archivos estáticos en Railway
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -58,19 +60,26 @@ TEMPLATES = [
 WSGI_APPLICATION = 'movilnet_config.wsgi.application'
 
 # --- BASE DE DATOS ---
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'gestion_de_seguimiento',
-        'USER': 'postgres',
-        'PASSWORD': '1234', # TODO: Mover a variables de entorno (.env)
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-        'OPTIONS': {
-            'client_encoding': 'UTF8',
-        },
+# En Railway, usa la variable DATABASE_URL automáticamente.
+# En local, usa la configuración de PostgreSQL directa.
+import dj_database_url
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'gestion_de_seguimiento',
+            'USER': 'postgres',
+            'PASSWORD': '1234', # TODO: Mover a variables de entorno (.env)
+            'HOST': '127.0.0.1',
+            'PORT': '5432',
+            'OPTIONS': {
+                'client_encoding': 'UTF8',
+            },
+        }
     }
-}
 
 # --- VALIDACIÓN DE CONTRASEÑAS ---
 AUTH_PASSWORD_VALIDATORS = [
