@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOVILNET - Conéctate al Futuro</title>
+  <link rel="shortcut icon" href="{% static 'proyectos/imagen/movilnet.icon.jpg' %}">
+  <link rel="stylesheet" href="{% static 'proyectos/css/estructura.css' %}">
+  <script src="{% static 'proyectos/js/javascrip.js' %}" defer></script>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">
+      <img src="{% static 'proyectos/imagen/movilnet.icon.jpg' %}" alt="Logo Movilnet">
+    </div>
+    <ul class="menu">
+      <li><a href="#planes">Planes</a></li>
+      <li><a href="#servicios">Servicios</a></li>
+
+      {% if user.is_authenticated %}
+      <li><a href="{% url 'home' %}" style="color: #ff6600; font-weight: bold;">Mi Panel (Home)</a></li>
+      {% else %}
+      <li><a href="#login">Login</a></li>
+      {% endif %}
+
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-overlay">
+      <div class="hero-content">
+      </div>
+    </div>
+  </header>
+
+  <section id="login" class="login">
+    <div class="login-container">
+
+      {% if user.is_authenticated %}
+      <div class="authenticated-panel">
+        <h2>✅ Sesión Iniciada</h2>
+        <p>Bienvenido de nuevo, <strong>{{ user.first_name }}</strong>.</p>
+        <div class="login-actions">
+          <a href="{% url 'home' %}" class="btn-enviar">Entrar a mi Panel Movilnet</a>
+          <a href="{% url 'logout' %}" class="btn-link">Cerrar Sesión</a>
+        </div>
+      </div>
+      {% else %}
+
+      <h2>🔐 Inicio de Sesión</h2>
+
+      <!-- SOLO dejamos los errores de credenciales del login -->
+      {% if error %}
+      <p
+        style="color: red; text-align: center; font-weight: bold; background: #ffe6e6; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+        ⚠️ {{ error }}</p>
+      {% endif %}
+
+      <form id="loginform" action="{% url 'login_usuario' %}" method="POST">
+        {% csrf_token %}
+        <div class="input-group">
+          <label for="usuario">Correo Electrónico</label>
+          <input type="email" name="usuario" placeholder="usuario@correo.com" autocomplete="off" required>
+        </div>
+
+        <div class="input-group">
+          <label for="password">Contraseña</label>
+          <input type="password" name="password" placeholder="********" required>
+        </div>
+
+        <div class="captcha-wrapper">
+          <label id="etiqueta-suma" style="font-weight: bold; color: #ff6600;"></label>
+          <input type="number" name="respuesta_usuario" id="respuesta_usuario" placeholder="?" required>
+          <input type="hidden" name="num1" id="id_num1">
+          <input type="hidden" name="num2" id="id_num2">
+        </div>
+
+        <div id="mensaje-verificacion"></div>
+
+        <input type="submit" value="Iniciar Sesión" class="btn-enviar">
+      </form>
+      {% endif %}
+    </div>
+  </section>
+
+  <footer id="contacto" class="footer">
+    <p>© 2026 Movilnet - Todos los derechos reservados</p>
+  </footer>
+
+  <script>
+    window.onload = function () {
+      const labelSuma = document.getElementById('etiqueta-suma');
+      if (labelSuma) {
+        const n1 = Math.floor(Math.random() * 10) + 1;
+        const n2 = Math.floor(Math.random() * 10) + 1;
+        labelSuma.innerText = `Seguridad: ¿Cuánto es ${n1} + ${n2}?`;
+        document.getElementById('id_num1').value = n1;
+        document.getElementById('id_num2').value = n2;
+      }
+    };
+  </script>
+</body>
+
+</html>
